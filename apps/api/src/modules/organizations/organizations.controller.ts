@@ -20,12 +20,12 @@ export class OrganizationsController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   getMe(@CurrentUser() user: Express.User) {
-    return this.organizationsService.findAllForUser(user.userId);
+    return this.organizationsService.findAll(user.userId);
   }
 
   @Get(':slug')
   @UseGuards(JwtAuthGuard)
   getOne(@CurrentUser() user: Express.User, @Param('slug') slug: string) {
-    return this.organizationsService.findBySlug(slug, user.userId);
+    return this.organizationsService.findOne(slug, user.userId);
   }
 }

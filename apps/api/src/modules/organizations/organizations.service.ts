@@ -2,16 +2,23 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { OrganizationWithMembers } from '../../common/types/prisma.types';
 
 @Injectable()
 export class OrganizationsService {
+  private readonly logger = new Logger(OrganizationsService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(userId: string, dto: CreateOrganizationDto) {
+  async create(
+    userId: string,
+    dto: CreateOrganizationDto,
+  ): Promise<OrganizationWithMembers> {
     const existing = await this.prisma.organization.findUnique({
       where: { slug: dto.slug },
     });
@@ -31,12 +38,14 @@ export class OrganizationsService {
           },
         },
       },
+      include: { members: true },
     });
+    this.logger.log(`Organization created: ${organization.id}`);
 
     return organization;
   }
 
-  async findAllForUser(userId: string) {
+  async findAll(userId: string): Promise<OrganizationWithMembers[]> {
     const organizations = await this.prisma.organization.findMany({
       where: {
         members: {
@@ -53,7 +62,10 @@ export class OrganizationsService {
     return organizations;
   }
 
-  async findBySlug(slug: string, userId: string) {
+  async findOne(
+    slug: string,
+    userId: string,
+  ): Promise<OrganizationWithMembers> {
     const organization = await this.prisma.organization.findUnique({
       where: { slug },
       include: { members: true },
