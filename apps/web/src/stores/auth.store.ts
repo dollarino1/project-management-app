@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import Cookies from 'js-cookie';
 
 interface AuthState {
   token: string | null;
@@ -7,13 +8,13 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
+  token: typeof window !== 'undefined' ? (Cookies.get('token') ?? null) : null,
   setToken: (token: string) => {
     set({ token });
-    localStorage.setItem('token', token);
+    Cookies.set('token', token);
   },
   clearToken: () => {
     set({ token: null });
-    localStorage.removeItem('token');
+    Cookies.remove('token');
   },
 }));

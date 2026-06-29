@@ -1,8 +1,15 @@
-export default function AuthGuardLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
-    // TODO: validate session, redirect to /login if unauthenticated
-    return (
-        <>
-            {children}
-        </>
-    );
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+
+export default async function AuthGuardLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token");
+
+  if (!token) {
+    redirect("/login");
+  }
+
+  return <>{children}</>;
 }
